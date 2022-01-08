@@ -1563,7 +1563,7 @@ vProseguir_peça, _
 return_verificacao_dama, _
 vJogada_permitida, _
 vProseguir_dama, inf, _
-click_2, combo, dama, _
+proseguir_combo, combo, dama, _
 return_p As Boolean
 
 Dim vCaption As String
@@ -1582,10 +1582,10 @@ Private Sub lbl_Click(Index As Integer)
         If Not vJogada_permitida Then Call jogador(lbl(Index), True)
         vProseguir_peça = True
         
-    ElseIf click_2 = True Then
+    ElseIf proseguir_combo = True Then
         Call insercao(Index, False)
         remocao_peça (Index)
-        Call combo_remocao_possivel(Index, vJogador, click_2, False)
+        Call combo_remocao_possivel(Index, vJogador, proseguir_combo, False)
         verificacao_dama
         vProseguir_peça = True
         
@@ -1595,7 +1595,7 @@ Private Sub lbl_Click(Index As Integer)
             If posivel_posicao_superior_vEsq = Index Or posivel_posicao_superior_vDir = Index Then
                 remocao_peça (Index)
                 conta_pontos (vJogador)
-                Call combo_remocao_possivel(Index, vJogador, click_2, False)
+                Call combo_remocao_possivel(Index, vJogador, proseguir_combo, False)
             Else: Proximo_Jogador
             End If
             
@@ -1612,15 +1612,15 @@ Private Sub lbl_Click(Index As Integer)
             If Not vJogada_permitida Then Call jogador(lbl(Index), True)
             vProseguir_dama = True
         
-        ElseIf click_2 = True Then
+        ElseIf proseguir_combo = True Then
             Call insercao(Index, True)
             remocao_peça (Index)
-            Call combo_remocao_possivel(Index, vJogador, click_2, True)
+            Call combo_remocao_possivel(Index, vJogador, proseguir_combo, True)
             vProseguir_dama = True
         
         ElseIf vProseguir_dama = True Then
             Call insercao(Index, True)
-            
+            remocao_peça (Index)
             If vPeçaDir_pode_ser_removida_superior = True Or vPeçaEsq_pode_ser_removida_superior = True _
             Or vPeçaDir_pode_ser_removida_inferior = True Or vPeçaEsq_pode_ser_removida_inferior = True Then
             
@@ -1628,7 +1628,7 @@ Private Sub lbl_Click(Index As Integer)
                 Or posivel_posicao_inferior_vEsq = Index Or posivel_posicao_inferior_vDir = Index Then
                     remocao_peça (Index)
                     conta_pontos (vJogador)
-                    If lbl(Index).tag = "centro" Then Call combo_remocao_possivel(Index, vJogador, click_2, True)
+                    If lbl(Index).tag = "centro" Then Call combo_remocao_possivel(Index, vJogador, proseguir_combo, True)
                    
                 Else: Proximo_Jogador
                 End If
@@ -1666,18 +1666,18 @@ Sub remocao_peça(Index)
 End Sub
 
 
-Sub combo_remocao_possivel(Index, vJogador, click_2, dama)
+Sub combo_remocao_possivel(Index, vJogador, proseguir_combo, dama)
     Call possivel_jogada(Index, vJogador, True, dama)
     
             If vPeçaDir_pode_ser_removida_superior Or vPeçaEsq_pode_ser_removida_superior = True _
             Or vPeçaDir_pode_ser_removida_inferior Or vPeçaEsq_pode_ser_removida_inferior = True Then
                 remocao (Index)
-                click_2 = True
+                proseguir_combo = True
    
             Else
                 voltar_cores
                 Proximo_Jogador
-                click_2 = False
+                proseguir_combo = False
             End If
 End Sub
 
@@ -1752,8 +1752,16 @@ Sub possivel_jogada(Index, vJogador, combo, dama)
     End If
 End Sub
 
+Function verifica_casa(posicao) As Boolean
+    verifica_casa = True
+    If lbl(posicao).Caption = "X" Then verifica_casa = False
+    If lbl(posicao).Caption = "O" Then verifica_casa = False
+    If lbl(posicao).Caption = "Z" Then verifica_casa = False
+    If lbl(posicao).Caption = "Y" Then verifica_casa = False
+End Function
+
 Sub movimentacao(tag, esq_dir, Index, vCaption, combo, inf)
-    If lbl(Index + esq_dir).Caption = "" _
+    If verifica_casa(Index + esq_dir) _
     And Not lbl(Index + esq_dir).BackColor = &HFFFFFF _
     And combo = False Then
         lbl(Index + esq_dir).BackColor = &H80000010
@@ -1761,7 +1769,7 @@ Sub movimentacao(tag, esq_dir, Index, vCaption, combo, inf)
         vJogada_permitida = True
     
     Else
-        If lbl(Index + esq_dir * 2).Caption = "" _
+        If verifica_casa(Index + esq_dir * 2) _
         And Not lbl(Index + esq_dir).Caption = vCaption _
         And Not lbl(Index + esq_dir).Caption = "" _
         And Not lbl(Index + esq_dir).tag = tag _
